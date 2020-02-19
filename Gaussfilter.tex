@@ -78,10 +78,107 @@ $\Gamma \in \mathbb{R}^{n \times i}$ gewählt. Die Kovarianz ist dann:
         \end{equation*}
     \item Zustandsupdate
         \begin{equation*}
-            \hat{x}(k+1|k+1) = \hat{x}(k+1|k) + K(k+1) (z(k+1) - \hat{z}(k+1|k))
+            \hat{x}(k+1|k+1) = \hat{x}(k+1|k) + K(k+1) \gamma(k+1)
+        \end{equation*}
+        mit dem Messresiduum
+        \begin{equation*}
+            \gamma(k+1) = z(k+1) - \hat{z}(k+1|k)
         \end{equation*}
     \item Kovarianzupdate
         \begin{equation*}
             P(k+1|k+1) = P(k+1|k) - K(k+1) S(k+1) \T{K(k+1)}
         \end{equation*}
 \end{itemize}
+
+\section{Konsistenz von Zustandsschätzern}
+Im Gegensatz zur (statischen) Parameterschätzung kann bei der (dynamischen) Zustandsschätzung nicht die Konvergenz gefordert werden, stattdessen soll gelten:
+\begin{eqnarray*}
+    \E{x(k) - \hat{x}(k|k)} &=& \E{\hat{x}(k|k)} = 0 \\
+    \E{\tilde{x}(k|k) \T{\tilde{x}(k|k)}} &=& P(k|k) 
+\end{eqnarray*}
+D.h. die Schätzung soll Offsetfrei sein und der MSE mit der Varianz übereinstimmen.
+
+Falls die zweite Bedingung zutrifft so trifft auch implizit die erste zu, da sonst das Offset additiv den MSE beeinflussen würde.
+
+\subsection{Normalized Estimation Error Squared (NEES)}
+\begin{equation*}
+    \varepsilon(k) = \T{\tilde{x}(k|k)} P^{-1}(k|k)\tilde{x}(k|k)
+\end{equation*}
+Wenn das Filter konsistent ist und es sich um ein lineares System mit normalverteilten Fehler handelt, dann ist die quadratische Form $\chi^2$-verteilt mit $\dim[x]$ Freiheitsgraden, d.h.:
+\begin{equation*}
+    \E{\varepsilon(k)} = \dim[k]
+\end{equation*}
+
+Es muss also untersucht werden ob solche eine $\chi^2$-Verteilung vorliegt.
+
+\subsubsection{Tests, basierend auf Monte-Carlo-Simulationen}
+Für den NEES-Wert muss der Zustand $x$ bekannt sein, das heißt der Score kann nur auf Basis von Simulationen berechnet
+werden.
+
+Dafür wird über $N$ Simulationsläufe jeweils $\varepsilon$ berechnet. Es muss dann gelten,
+dass:
+\begin{equation*}
+    \sum_{i=1}^N \varepsilon^i(k) \propto \chi^2_{N \dim[x]}
+\end{equation*}
+
+Das kann mit einem $\chi^2$ Test überprüft werden:
+Es wird ein Interval $[r_1, r_2]$ gewählt, mit ($x$ folgt der $\chi^2$-Verteilung):
+\begin{equation*}
+    P(x \in [r_1, r_2]) = 1 - \alpha
+\end{equation*}
+Wobei $\alpha$ das Signifikanzniveau ist, das heißt, die Wahrscheinlichkeit, dass nicht in diesem Interval ist, obwohl $x$ einer $\chi^2$-Verteilung folgt ist $\alpha$.
+
+\subsection{Normalized innovation squared (NIS)}
+Da der NEES-Wert den echten Zustand $x$ nutzt, ist es nicht möglich die Konsistenz des Filters online zu bestimmen. Das ist mit dem NIS Wert möglich:
+\begin{equation*}
+    \bar{\varepsilon}_\gamma = \frac{1}{k} \sum_{i=1}^k \T{\gamma(i)} {S(i)}^{-1} \gamma(i)
+\end{equation*}
+Auch diese muss einer $\chi^2$-Verteilung folgen, siehe NEES.
+
+\section{Filterinitialisierung}
+Für einen kurzen Einschwingvorgang des Filters sollte die initialie Zustands- und Kovarianzschätzung passend gewählt werden. Das heißt das Filter sollte Konsistent sein:
+\begin{equation*}
+    \T{\tilde{x}(0|0)} {P(0|0)^{-1}} \tilde{x}(0|0) \leq c_1
+\end{equation*}
+wobei $c_1$ die obere Grenze des 95\% Vertrauensbereichs der $\chi^2$-Verteilung 
+mit der entsprechenden Anzahl an Freiheitsgraden darstellt.
+
+\section{Lineare Modelle}
+\subsection{Konstante Position}
+\begin{eqnarray*}
+    x &=& \begin{pmatrix} x\end{pmatrix} \\
+    F &=& \begin{pmatrix} 1\end{pmatrix} \\
+    \Gamma &=& \begin{pmatrix} T \end{pmatrix} \\
+    \text{bzw. } Q &=& 
+        \begin{pmatrix} 
+            T^2 
+        \end{pmatrix}
+        \sigma^2_x \\
+\end{eqnarray*}
+
+\subsection{Konstante Geschwindigkeit (DWNA/CV)}
+\begin{eqnarray*}
+    x &=& \begin{pmatrix} x \\ \dot{x} \end{pmatrix} \\
+    F &=& \begin{pmatrix} 1 & T \\ 0 & 1 \end{pmatrix} \\
+    \Gamma &=& \begin{pmatrix} \frac{1}{2} T^2 \\ T \end{pmatrix} \\
+    \text{bzw. } Q &=& 
+        \begin{pmatrix} 
+            \frac{1}{4} T^4 & \frac{1}{2} T^3 \\ 
+            \frac{1}{2} T^3 & T^2 
+        \end{pmatrix}
+        \sigma^2_v \\
+\end{eqnarray*}
+
+\subsection{Konstante Beschleunigung}
+\begin{eqnarray*}
+    x &=& \begin{pmatrix} x \\ \dot{x} \\ \ddot{x} \end{pmatrix} \\
+    F &=& \begin{pmatrix} 1 & T & \frac{1}{2} T^2 \\ 0 & 1 & T \\ 0 & 0 & 1 \end{pmatrix} \\
+    \Gamma &=& \begin{pmatrix} \frac{1}{2} T^2 \\ T \\ 1 \end{pmatrix} \\
+    \text{bzw. } Q &=& 
+        \begin{pmatrix} 
+            \frac{1}{4} T^4 & \frac{1}{2} T^3 & \frac{1}{2} T^2 \\ 
+            \frac{1}{2} T^3 & T^2 & T \\
+            \frac{1}{2} T^2 & T & 1 
+        \end{pmatrix}
+        \sigma^2_v \\
+\end{eqnarray*}
