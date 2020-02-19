@@ -153,7 +153,7 @@ mit der entsprechenden Anzahl an Freiheitsgraden darstellt.
         \begin{pmatrix} 
             T^2 
         \end{pmatrix}
-        \sigma^2_x \\
+        \sigma^2_v \\
 \end{eqnarray*}
 
 \subsection{Konstante Geschwindigkeit (DWNA/CV)}
@@ -181,4 +181,87 @@ mit der entsprechenden Anzahl an Freiheitsgraden darstellt.
             \frac{1}{2} T^2 & T & 1 
         \end{pmatrix}
         \sigma^2_v \\
+\end{eqnarray*}
+
+\section{Stationäres Kalmanfilter}
+\subsection{$\alpha$-$\beta$-Tracker}
+Für ein CV-Modell mit konstanten Parametern konvergieren die Parameter des Kalmanfilters 
+(Filterverstärkung, Kovarianzen) gegen feste Parameter, diese können auch Offline berechnet werden.
+
+Es wird ein CV-Modell mit $H = \begin{pmatrix} 1 & 0 \end{pmatrix}$ angenommen.
+
+Für die Grenzwerte der Matrizen gilt:
+\begin{eqnarray*}
+    \lim_{k \to \infty} P(k|k) &=& \begin{pmatrix} p_{ij} \end{pmatrix} \\
+    \lim_{k \to \infty} P(k+1|k) &=& \begin{pmatrix} m_{ij} \end{pmatrix} \\
+    \lim_{k \to \infty} K(k) &=& \begin{pmatrix} g_1 \\ g_2  \end{pmatrix} \\
+        &=& \begin{pmatrix} \alpha \\ \frac{\beta}{T} \end{pmatrix}
+\end{eqnarray*}
+Daraus folgt:
+\begin{eqnarray*}
+    S &=& H
+        \begin{pmatrix}
+            m_{11} & m_{12} \\
+            m_{12} & m_{22} 
+        \end{pmatrix}
+        \T{H} + R = m_{11} + \sigma_w^2 \\
+    K &=&
+        \begin{pmatrix}
+            m_{11} & m_{12} \\
+            m_{12} & m_{22}
+        \end{pmatrix} \T{H} S^{-1} = 
+        \begin{pmatrix}
+            \frac{m_{11}}{m_{11} + \sigma_w^2} \\
+            \frac{m_{12}}{m_{11} + \sigma_w^2}
+        \end{pmatrix} \\
+    \Rightarrow && \\
+    g_1 &=& \alpha = \frac{m_{11}}{m_{11} + \sigma_w^2} \\
+    g_2 &=& \frac{\beta}{T} = g_1 \frac{m_{12}}{m_{11}} \\
+    P(k|k) &=& P(k+1|k) \T{H} S^{-1} = 
+        \begin{pmatrix}
+            (1-g_1) m_{11} & (1-g_1) m_{12} \\
+            (1-g_1) m_{12} & m_{22} - g_2 m_{12}
+        \end{pmatrix}
+\end{eqnarray*}
+Mit den bekannten System- und Kalmangleichungen gilt (zeitinvarianz vorausgesetzt):
+\begin{eqnarray*}
+    P(k+1|k) &=& F P(k|k) \T{F} + Q \\
+    \Leftrightarrow P(k|k) &=& F^{-1} (P(k+1|k) - Q) \T{\left(F^{-1}\right)} \\
+    P(k|k) &=&
+        \begin{pmatrix}
+            m_{11} - 2 T m_{12} + T^2 m_{22} - \frac{1}{4} T^4 \sigma_v^2 & m_{12} - T m_{22} + \frac{1}{2} T^3 \sigma_v^2 \\
+            m_{12} - T m_{22} + \frac{1}{2} T^3 \sigma_v^2 & m_{22} - T^2 \sigma_v^2
+        \end{pmatrix}
+\end{eqnarray*}
+Durch Gleichsetzen erhält man:
+\begin{eqnarray*}
+    g_1 m_{11} &=& 2 T m_{12} - T^2 m_{22} + \frac{T^4}{4} \sigma_v^2 \\
+    g_1 m_{12} &=& T m_{22} - \frac{T^3}{2} \sigma_v^2 \\
+    g_2 m_{12} &=& T^2 \sigma_v^2
+\end{eqnarray*} 
+
+Durch Kombination erhält man:
+\begin{eqnarray*}
+    \alpha &=& - \frac{1}{8} \left( \lambda^2 + 8 \lambda - (\lambda + 4) \sqrt{\lambda^2 + 8 \lambda} \right) \\
+    \beta &=& \frac{1}{4} \left( \lambda^2 + 4\lambda - \lambda \sqrt{\lambda^2 + 8 \lambda} \right) \\
+    \text{mit } \lambda &=& \frac{\sigma_v T^2}{\sigma_w} 
+\end{eqnarray*}
+
+\subsection{$\alpha$-$\beta$-$\gamma$-Tracker}
+Eine ähnliche Rechung lässt sich auch für ein Modell 3. Ordnung anstellen, es resultiert (bei gleichem $\lambda$):
+\begin{equation*}
+    \lim_{k \to \infty} =
+        \begin{pmatrix}
+            g_1 \\ g_2 \\ g_3
+        \end{pmatrix} =
+        \begin{pmatrix}
+            \alpha \\ \frac{\beta}{T} \\ \frac{\gamma}{2 T^2}
+        \end{pmatrix}
+\end{equation*}
+die Beziehung zwischen den Parametern lautet:
+\begin{eqnarray*}
+    \lambda^2 &=& \frac{\gamma^2}{4 (1-\alpha)} \\
+    \alpha &=& \sqrt{2 \beta} - \frac{\beta}{2} \\
+    \beta &=& 2(2-\alpha) - 4 \sqrt{1-\alpha} \\
+    \gamma = \frac{\beta^2}{\alpha}
 \end{eqnarray*}
