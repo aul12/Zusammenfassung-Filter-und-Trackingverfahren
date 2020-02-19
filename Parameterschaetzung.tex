@@ -1,2 +1,90 @@
 \chapter{Grundlagen der Parameterschätzung}
+\section{Definitionen}
+\begin{enumerate}
+    \item $x$: Parameter (fester, zeitinvarianter Wert), der geschätzt werden soll (Skalar oder Vektor).
+    \item $z$: Messung des Parameters $x$ mit einer einer Messfunktion $h(\cdot)$ (Skalar oder Vektor).
+        Die Messungen sind in der Regel gestört, z.B. durch ein Rauschen $w$: $z = h(x, w)$.
+    \item $Z^k$: $Z^k = \{z_1, \ldots, z_k\}$ ist die Gesamtheit aller $k$-Messungen.
+    \item $Z$: Gesamtheit aller erfolgten Messungen (Anzahl nicht spezifiziert).
+\end{enumerate}
 
+\paragraph{Schätzer:}
+\begin{equation*}
+    \hat{x}(k) = \hat{x}[k, Z^k]\ Z^k = \{z_1, \ldots, z_k\}
+\end{equation*}
+
+Das Ergebnis der Schätzung ist der Ausgangswert $\hat{x}(k)$ des Schätzers. 
+Die Begriffe Schätzung und Schätzergebnis werden synonym verwendet.
+
+\paragraph{Schätzfehler:}
+Der Schätzfehler ist die Abweichung zwischen dem (unbekannten) wahren Wert und dem Schätzergebnis:
+\begin{equation*}
+    \tilde{x} = x - \hat{x}
+\end{equation*}
+
+\section{Modelle zur Parameterschätzung}
+\subsection{Likelihood-Funktion (Non-Bayes Methode)}
+Der zu schätzende Parameter wird als deterministisch angenommen, d.h. es existiert ein exakter, aber unbekannter, 
+Wert $x_0$.
+
+Die Likelihood Funktion gibt die Likelihood an mit der eine Messung $Z$ zu einem Zustand $x$ gehört:
+\begin{equation*}
+    \Lambda_Z(x) = p(Z|x)
+\end{equation*}
+
+\subsection{Regel von Bayes}
+Der zu schätzende Parameter wird als stochastisch mit a priori PDF $p(x)$ angenommen.
+
+Dann folgt mit der Regel von Bayes:
+\begin{equation*}
+    p(x|Z) = \frac{p(Z|x) \cdot p(x)}{p(Z)} = \frac{1}{c} p(Z|x) p(x)
+\end{equation*}
+
+Mit:
+\begin{enumerate}
+    \item $p(Z|x)$: PDF der Messung, bedingt durch den wahren Parameter $x$.
+    \item $p(x|Z)$: A posteriori PDF der Schätzung
+    \item $p(x)$: A priori PDF der Schätzung
+    \item $p(Z)$: PDF der Messungen, dient der Normierung
+    \item $\frac{1}{c}$: Normierungsfaktor
+\end{enumerate}
+
+Vorsicht: $c = p(Z)$ gilt nur für statistisch unabhängigen Messungen.
+
+\section{Erwartungstreue von Schätzern}
+Ein Schätzer heißt erwartungstreu, wenn für den Schätzfehler $\tilde{x}$ gilt:
+\begin{equation*}
+    \E{\tilde{x}} = 0
+\end{equation*}
+
+Dabei lässt sich unterscheiden zwischen:
+\begin{enumerate}
+    \item (Generelle) Erwartungstreue:
+        \begin{equation*}
+            \E{\tilde{x}} = 0\ \forall k
+        \end{equation*}
+    \item Asymptotische Erwartungstreue:
+        \begin{equation*}
+            \E{\tilde{x}} = 0\ \text{für } k \to \infty
+        \end{equation*}
+\end{enumerate}
+
+\section{Konsistenz}
+Wenn der Schätzer erwartungstreu ist, kann die Konsistenz als:
+\begin{equation*}
+    \lim_{k \to \infty} \tilde{x}(k, Z^k) = 0
+\end{equation*}
+
+Es lässt sich zeigen, dass die Varianz bzw. der MSE eines Schätzers nie kleiner als die Cramer-Rao Grenze werden kann:
+\begin{equation*}
+    \E{(\hat{x}(Z) - x) \T{(\hat{x}(Z) - x)}} \geq J^{-1}
+\end{equation*}
+mit der Fisher-Informationsmatrix $J$ als:
+\begin{equation*}
+    J = -\left. \E{\nabla_x \T{\nabla}_x \ln(\Lambda(x))} \right|_{x=x_0} 
+        = \left. \E{\left(\nabla_x \ln(\Lambda(x))\right) \T{(\nabla_x \ln(\Lambda(x)))}} \right|_{x=x_0}
+\end{equation*}
+Wobei die Größenrelation über die positive semidefinitheit der beiden Matrizen definiert ist:
+\begin{equation*}
+    A \geq B \Leftrightarrow A - B \geq 0
+\end{equation*}
