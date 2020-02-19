@@ -1,0 +1,71 @@
+\documentclass[10pt]{report}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc} 
+\usepackage{commath}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{tikz-timing}
+\usepackage{tikz}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{xstring}
+\usepackage{circuitikz}
+\usepackage{listings}
+\usepackage{todonotes}
+\usepackage[final]{pdfpages}
+\usepackage{listings}
+\usepackage{subcaption}
+\usepackage{circuitikz}
+\usepackage{varwidth}
+\usepackage{algpseudocode}
+
+\usepackage[ngerman]{babel}
+
+\usetikzlibrary{calc,shapes.multipart,chains,arrows}
+
+\newcommand{\Prb}[1]{P(\text{#1})}
+\newcommand{\CPr}[2]{P(\text{#1}|\text{#2})}
+\DeclareMathOperator*{\dx}{\text{ d}x}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\sign}{sign}
+\DeclareMathOperator*{\trace}{trace}
+\DeclareMathOperator*{\diag}{diag}
+\DeclareMathOperator*{\rank}{rank}
+\newcommand{\T}[1]{#1^\text{T}}
+
+\tikzset{
+    max width/.style args={#1}{
+        execute at begin node={\begin{varwidth}{#1}},
+        execute at end node={\end{varwidth}}
+    }
+}
+
+\setlength\parindent{0pt}
+
+\title{Filter- und Trackingverfahren}
+\author{Paul Nykiel}
+
+\begin{document}
+    \maketitle
+    \pagebreak
+    This page is intentionally left blank.
+    \pagebreak
+    \tableofcontents
+    \pagebreak
+    \input{Einleitung.tex}
+    \input{Parameterschaetzung.tex}
+    \input{SchaetzungDynamischerSysteme.tex}
+    \input{Gaussfilter.tex}
+    \input{GaussfilterNichtLinear.tex}
+    \input{Impl.tex}
+    \input{Partikelfilter.tex}
+    \input{MMFilter.tex}
+    \input{Assoziation.tex}
+\end{document}
