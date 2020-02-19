@@ -1,1 +1,124 @@
 \chapter{Aspekte der Implementation}
+\section{Numerische Probleme bei der Berechnung von Matrizen}
+Kovarianzmatrizen besitzen zwei elementare Eigenschaften:
+\begin{itemize}
+    \item Symmetrie
+    \item Positive Definitheit
+\end{itemize}
+Durch Rundungsfehler von Maschinenzahlen können diese Eigenschaften verletzt werden, daher müssen
+äquivalente Formulierungen gefunden werden bei denen diese Eigenschaften garantiert erhalten bleiben.
+
+Für die Kovarianzprädiktionsgleichung:
+\begin{equation*}
+    P(k+1|k) = F(k) P(k|k) \T{F(k)} + \Gamma(k) Q(k) \T{\Gamma(k)}
+\end{equation*}
+treten keine Probleme bezüglich der positiven Definitheit auf, da nur Additionen vorkommen. 
+Die Symmetrie kann durch zweckmäßige Implementierung der Matrixmultiplikation garantiert werden.
+
+Bei der Kovarianzinnovationsgleichung:
+\begin{equation*}
+    P(k+1|k+1) = P(k+1|k) - K(k+1) S(k+1) \T{K(k+1)}
+\end{equation*}
+kann es zu Problemen bei der positiven Definitheit kommen, durch die äquivalente Formulierung:
+\begin{equation*}
+    P(k+1|k+1) = \left(I-K(k+1)H(k+1)\right) P(k+1|k) \T{\left(I-K(k+1)H(k+1)\right)} + K(k+1) R(k+1) \T{K(k+1)}
+\end{equation*}
+der sog. Joseph-Form kann das verhindert werden. Hier ist nur wieder die Symmetrie der Matrizen zu beachten.
+
+\section{Sequentielle Formulierung des Kalmanfilters}
+Falls das Messrauschen der einzelnen Messgrößen unabhängig ist, also
+\begin{equation*}
+    R(k) = \diag(\sigma_1^2(k), \ldots, \sigma_m^2(k))
+\end{equation*}
+gilt, dann können die Messungen auch als Einzelmessungen eingebracht werden. Dadurch reduziert sich der Rechenaufwand,
+da keine Matrix-Inversionen vonnöten sind. Es gibt weniger Probleme durch Rundungsfehler. 
+Zudem können Outlier-Messungen ignoriert werden.
+
+Die Messung
+\begin{equation*}
+    z(k) =
+        \begin{pmatrix}
+            z_1(k) \\ \vdots \\ z_m(k)
+        \end{pmatrix} = 
+        \begin{pmatrix}
+            \T{h_1(k)} x(k) + w_1(k) \\
+            \vdots \\
+            \T{h_m(k)} x(k) + w_m(k)
+        \end{pmatrix}
+\end{equation*}
+wird als Sequenz von skalaren Messungen Interpretiert.
+
+Der a-priori Schätzwert (mit $0$ eingebrachten Messungen) wird geschrieben als
+\begin{eqnarray*}
+    \hat{x}(k|k, 0) &=& \hat{x}(k|k-1) \\
+    P(k|k, 0) &=& P(k|k-1)
+\end{eqnarray*}
+
+Nun kann der Innovationsschritt durchgeführt werden:
+\begin{eqnarray*}
+    s(k,i) &=& \T{h_i(k)} P(k|k, i-1) h_i(k) + r_i(k) \\
+    k(k,i) &=& \frac{P(k|k, i-1)h_i(k)}{s(k,i)} \\
+    \hat{x}(k|k, i) &=& \hat{x}(k|k, i-1) + k(k,i) \left(z_i(k) - \T{h_i(k)} \hat{x}(k|k, i-1)\right) \\
+    P(k|k, i) &=& P(k|k, i-1) - k(k, i) \T{h_i(k)} P(k|k, i-1) \\
+        &=& P(k|k, i-1) - \frac{P(k|k, i-1)h_i(k) \T{h_i(k)} \T{P(k|k, i-1)}}{\T{h_i(k)} P(k|k,i-1)h_i(k)+r_i(k)}
+\end{eqnarray*}
+Nach Einbringen aller Messungen gilt:
+\begin{eqnarray*}
+    \hat{x}(k|k) &=& \hat{x}(k|k, n_m) \\
+    P(k|k) &=& P(k|k, n_m)
+\end{eqnarray*}
+
+\subsection{Erkennung von Außreisern}
+Da alle Messungen einzeln eingebracht werden, ist es möglich einzelne Teile der Messung zu ignorieren wenn sie mehr als
+$n \sigma$ ($n=2 \stackrel{\wedge}{=} 95\%$, $n=3 \stackrel{\wedge}{=} 99.73\%$) von der Messwertprädiktion abweichen.
+
+\section{Maßnahmen bei Verletzung der statistischen Voraussetzungen}
+\subsection{Autokorreliertes Prozessrauschen - Shaping Filter}
+Das System wird durch ein Shaping-Filter erweitert, das aus einer (virtuellen) weißen Rauschsequenz die wirklich
+vorhandene farbige Rauschsequenz erzeugt. Dadurch wird die Systemgleichung i.A. komplexer und die Dimension des
+Zustandsraums vergrößert.
+
+\subsection{Korreliertes Prozess- und Messrauschen}
+Die Systemgleichung wird erweitert durch (die Matrizen müssen nicht zeitinvariant sein, wird hier aber zur Vereinfachung
+angenommen):
+\begin{eqnarray*}
+    x(k+1) &=& Fx(k) + v(k) + T \left( z(k) - H x(k) - w(k)\right) \\
+        &=& (F-TH) x(k) + v(k) - T w(k) + T z(k)
+\end{eqnarray*}
+Durch umdefinition lässt sich die Gleichung schreiben als:
+\begin{equation*}
+    x(k+1) = F^* x(k) + v^*(k) + u^*(k)
+\end{equation*}
+mit
+\begin{eqnarray*}
+    F^* &=& F - TH \\
+    v^*(k) &=& v(k) - Tw(k) \\
+    u^*(k) &=& Tz(k)
+\end{eqnarray*}
+
+Aus der Bedingung, dass die Kreuzkorrelation $0$ sein muss folgt dann:
+\begin{equation*}
+    T = U R^{-1}
+\end{equation*}
+
+\subsection{Autokorreliertes Messrauschen}
+Das Messrauschen wird modelliert durch:
+\begin{equation*}
+    w_c(k+1) = F_c w_c(k) + w_w(k)
+\end{equation*}
+
+Anstatt der normalen Messgleichung wird nun eine Differenzmessung durchgeführt:
+\begin{equation*}
+    y(k) = z(k+1) - F_c z(k) = HFx(k) + Hv(k) +w_w(k) -F_c H x(k)
+\end{equation*}
+durch umdefinieren lässt sich die Messgleichung dann schreiben als:
+\begin{equation*}
+    y(k) = H^* x(k) + w(k)
+\end{equation*}
+mit
+\begin{eqnarray*}
+    H^* &=& HF - F_c H \\
+    w(k) &=& H v(k) + w_w(k) 
+\end{eqnarray*}
+Nun ist zwar das Messrauschen weißes Rauschen, dafür sind aber Mess- und Prozessrauschen korreliert, d.h. im nächsten
+Schritt muss das Vorgehen aus dem vorherigen Abschnitt angewandt werden.
