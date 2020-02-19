@@ -1,1 +1,139 @@
 \chapter{Gaußfilter für nichtlineare Systeme}
+Bei vielen realen Systemen sind System und/oder Messgleichung nichtlinear, so bleiben die PDFs keine Normalverteilung. Oftmals lässt sich aber die PDF trotzdem durch eine Gaußverteilung
+approximieren.
+
+\section{Extended Kalman Filter (EKF)}
+Das EKF löst das Problem der Nichtlinearitäten durch linearisierung.
+
+Allgemein lautet das Zustandsraummodell:
+\begin{eqnarray*}
+    x(k+1) &=& f(k, x(k), u(k), v(k)) \\
+    z(k+1) &=& h(k, x(k), w(k))
+\end{eqnarray*}
+
+Beim EKF wird additives Rauschen angenommen (und hier auch keine Steuergröße):
+\begin{eqnarray*}
+    x(k+1) &=& f(k, x(k)) + v(k) \\
+    z(k) &=& h(k, x(k)) + w(k)
+\end{eqnarray*}
+
+Durch linearisierung (Taylor) erhält man daraus ein linearisiertes Modell:
+\begin{equation*}
+    x(k+1) = f(k, \hat{x}(k|k)) + f_x(k) (x(k) - \hat{x}(k|k))
+\end{equation*}
+wobei $f_x$ die Ableitung von $f$ nach $x$ ist:
+\begin{equation*}
+    f_x(k) = \left. \T{\left( \nabla_x \T{f(k|x)} \right)} \right|_{x=\hat{x}(k|k)}
+        = \left. \frac{\partial f}{\partial x} \right|_{x=\hat{x}(k|k)}
+\end{equation*}
+
+\subsection{Prädiktionsschritt}
+\begin{eqnarray*}
+    \hat{x}(k+1|k) &=& f(k, \hat{x}(k|k)) \\
+    P(k+1|k) &=& f_x(k) P(k|k) \T{f_x(k)} + Q(k) \\
+    \hat{z}(k+1|k) &=& h(k+1, \hat{x}(k+1|k)) \\
+    S(k+1) &=& h_x(k+1) P(k+1|k) \T{h_x(k+1)} + R(k+1)
+\end{eqnarray*}
+
+\subsection{Innovationsschritt}
+\begin{eqnarray*}
+    K(k+1) &=& P(k+1|k) \T{h_x(k+1)} {S(k+1)}^{-1} \\
+    \hat{x}(k+1|k+1) &=& \hat{x}(k+1|k) + K(k+1) (z(k+1) - \hat{z}(k+1|k)) \\
+    P(k+1|k+1) &=& P(k+1|k) - K(k+1)S(k+1)\T{K(k+1)}
+\end{eqnarray*}
+
+Selbstverständlich muss auch hier eine Anfangsschätzung $x(0|0)$ und $P(0|0)$ vorliegen.
+
+Die Güte es EKF hängt von zwei Faktoren ab:
+\begin{itemize}
+    \item Die Unsicherheit der Schätzung (größere Unsicherheit bedeutet es wird eine größere Spanne an Eingangswerten
+        abgedeckt)
+    \item Die Größe der lokalen Nichtlinearität
+\end{itemize}
+
+\section{Unscented Kalmanfilter (UKF)}
+Statt einer Taylorreihenentwicklung wird eine "stochastische" linearisierung durchgeführt, d.h. anstatt das System
+zu linearisieren werden mehrere Punkte (auf der $\sigma$-Ellipse), transformiert und danach daraus eine 
+Normalverteilung rekonstruiert.
+
+\begin{enumerate}
+    \item Wahl von $2n+1$ $\sigma$-Punkte $\chi_i(k)$ und Gewichten $W_i$ mit $\sum W_i = 1$.
+    \item Transformation aller $\chi_i(k)$ durch Systemgleichung:
+        \begin{equation*}
+            \chi_i(k+1) = f(\chi_i(k))
+        \end{equation*}
+    \item Berechnung des neuen Erwartungswertes:
+        \begin{equation*}
+            \hat{x}(k+1|k) = \sum_{i=0}^{2n} W_i \chi_i(k+1)
+        \end{equation*}
+    \item Berechnung der neuen Kovarianz:
+        \begin{equation*}
+            P(k+1|k) = \sum_{i=0}^{2n} W_i \left(\chi_i(k+1) - \hat{x}(k+1|k) \right) 
+                \T{\left(\chi_i(k+1) - \hat{x}(k+1|k) \right)}
+        \end{equation*}
+\end{enumerate}
+Dieses Verfahren kann sowohl für die System, als auch für die Messgleichung angewandt werden.
+
+\subsection{Wahl der $\chi_i$}
+Eine mögliche Option für die Wahl der $\chi_i$ ist ($\kappa$ ist ein Design Parameter):
+\begin{eqnarray*}
+    \chi_0(k) &=& \hat{x}(k|k) \\
+    \chi_{i}(k) &=& \hat{x}(k|k) + {\left( \sqrt{(n+\kappa) P(k|k)} \right)}_i \\
+    \chi_{i+n}(k) &=& \hat{x}(k|k) - {\left( \sqrt{(n+\kappa) P(k|k)} \right)}_i \\
+    W_0 &=& \frac{\kappa}{n + \kappa} \\
+    W_i &=& W_{i+n} = \frac{1}{2 (n + \kappa)} 
+\end{eqnarray*}
+
+Die Wurzel von $P$, also eine Matrix $A$ mit $P=A\T{A}$ bzw. $P=\T{A}A$, kann z.B. mit einer Cholsky Zerlegung gefunden
+werden.
+
+Der Designparameter $\kappa$ kann z.B. als:
+\begin{equation*}
+    \kappa = 3 - n
+\end{equation*}
+gewählt werden (Heuristik).
+
+\section{Nichtlineare Fahrzeugmodelle}
+\subsection{Konstante Geschwindigkeit und Konstante Gierrate}
+\begin{eqnarray*}
+    x &=&
+        \begin{pmatrix}
+            x \\ y \\ v \\ \psi \\ \dot{\psi}
+        \end{pmatrix} \\
+    x(k+1) &=& f(k, x(k)) = x(k) + \Delta x(k+1) + v(k+1) \\
+    \text{mit: } \Delta x(k+1) &=& 
+        \begin{pmatrix}
+            \frac{v(k)}{\dot{\psi}(k)} \left(\sin(\psi(k) + \dot{\psi}(k) T) - \sin(\psi(k))\right) \\
+            \frac{v(k)}{\dot{\psi}(k)} \left(\cos(\psi(k) - \cos(\psi(k) + \dot{\psi}(k) T) \right) \\
+            0 \\
+            \dot{\psi}(k) T \\
+            0
+        \end{pmatrix}
+\end{eqnarray*}
+Für $\abs{\dot{\psi}} < \varepsilon$ muss eine Fallunterscheidung vorgenommen werden:
+\begin{equation*}
+    \Delta x(k+1) = 
+        \begin{pmatrix}
+            v(k) T \cos(\psi(k)) \\
+            v(k) T \sin(\psi(k)) \\
+            0
+            \dot{\psi}{k} T \\
+            0
+        \end{pmatrix}
+\end{equation*}
+Für die Rauschgewinne von Translation und Rotation ergibt sich (unter der Annahme $\dot{\psi}(k)$ klein):
+\begin{eqnarray*}
+    \Gamma_a(k) &=&
+        \begin{pmatrix}
+            \frac{1}{2} T^2 \cos(\psi(k)) \\
+            \frac{1}{2} T^2 \sin(\psi(k)) \\
+            T
+        \end{pmatrix} \\
+    \Gamma_{\ddot{\psi}} &=& 
+        \begin{pmatrix}
+            \frac{1}{2} T^2 \\
+            T
+        \end{pmatrix}
+\end{eqnarray*}
+
+Eine Erweiterung zu konstante Gierrate oder konstanter Beschleunigung ist möglich.
