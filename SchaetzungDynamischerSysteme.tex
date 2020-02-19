@@ -1,1 +1,17 @@
 \chapter{Grundlagen zur Schätzung dynamischer Größen}
+Zur Vereinfachung, und zur Implementierung auf Digitalrechensystemen, werden nur zeitdiskrete Systeme betrachtet, d.h.:
+\begin{equation*}
+    k = kT\ k \in \mathbb{N}, T \in \mathbb{R}^+\ \text{die Abtastzeit}
+\end{equation*}
+
+\section{Das Bayes-Filter}
+\subsection{Allgemeine Beschreibung}
+\subsubsection{Prädiktion}
+\begin{equation*}
+    p(x(k) | Z^{k-1}, U^k) = \int p(x(k)|x(k-1), u(k)) p(x(k-1)|Z^{k-1}, U^{k-1}) \text{d}x(k-1)
+\end{equation*}
+
+\subsubsection{Innovation (Messupdate)}
+\begin{equation*}
+    p(x(k)|Z^k, U^k) = \eta p(z(k)|x(k)) p(x(k) | Z^{k-1}, U^k)
+\end{equation*}

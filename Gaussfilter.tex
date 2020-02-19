@@ -1,1 +1,87 @@
 \chapter{Gaußfilter für lineare Systeme}
+Das allgemeine Bayes Filter lässt sich für allgemeine PDFs nur schwer auswerten. 
+Daher werden die PDFs als Normalverteilungen angenommen:
+\begin{equation*}
+    p(x) = \abs{2 \pi P}^{-\frac{1}{2}} \exp \left(-\frac{1}{2} \T{(x - \bar{x})} P^{-1} (x-\bar{x}) \right)
+\end{equation*}
+Mit $\bar{x}$: Erwartungswert, $P$: Kovarianzmatrix.
+
+\section{Definitionen}
+Ein (lineares) Systemmodell sei gegeben durch:
+\begin{equation*}
+    x(k+1) = F(k) x(k) + G(k) u(k) + v(k)
+\end{equation*}
+mit:
+\begin{itemize}
+    \item $x(k) \in \mathbb{R}^{n \times 1}$: Zustandsvektor
+    \item $u(k) \in \mathbb{R}^{j \times 1}$: Steuervektor
+    \item $u(k) \in \mathbb{R}^{j \times 1}$: Sequenz von gaußverteiltem, mittelwertfreien weißem Rauschen
+    \item $F(k) \in \mathbb{R}^{n \times n}$: Systemmatrix
+    \item $G(k) \in \mathbb{R}^{n \times j}$: Steuermatrix
+    \item $k \in \mathbb{N}$ Zeitindex der diskreten Zeit
+\end{itemize}
+Das Modellrauschen hat die Kovarianz:
+\begin{equation*}
+    Q(k) = \E{v(k)\T{v(k)}}
+\end{equation*}
+
+Sowie die Messgleichung:
+\begin{equation*}
+    z(k) = H(k) x(k) + w(k)
+\end{equation*}
+mit:
+\begin{itemize}
+    \item $z(k) \in \mathbb{R}^{m \times 1}$: Messvektor
+    \item $H(k) \in \mathbb{R}^{m \times n}$: Messmatrix
+    \item $w(k) \in \mathbb{R}^{m \times 1}$: Sequenz von gaußverteiltem, mittelwertfreiem, weißen Rauschen
+\end{itemize}
+Das Messrauschen hat die Kovarianz:
+\begin{equation*}
+    R(k) = \E{w(k)\T{w(k)}}
+\end{equation*}
+
+Zudem seien die beiden Rauschprozesse (System- und Modellrauschen) statistisch unabhängig, d.h.
+die Kreuzkorrelation ergibt sich zu null.
+
+Um abhängigkeiten des Modelrauschens zu modellieren wird das Rauschen z.t. als $\Gamma(k) v(k)$, mit
+$\Gamma \in \mathbb{R}^{n \times i}$ gewählt. Die Kovarianz ist dann:
+\begin{equation*}
+    \E{(\Gamma(k)v(k))\T{(\Gamma(k)v(k))}} = \Gamma(k) Q(k) \T{\Gamma(k)}
+\end{equation*}
+
+\section{Kalmanfilter}
+\subsection{Prädiktionsschritt}
+\begin{itemize}
+    \item Zustandsprädiktion:
+        \begin{equation*}
+            \hat{x}(k+1|k) = F(k) \hat{x}(k|k) + G(k) u(k)
+        \end{equation*} 
+    \item Kovarianzprädiktion:
+        \begin{equation*}
+            P(k+1|k) = F(k)P(k|k)\T{F(k)} + Q(k)
+        \end{equation*}
+    \item Messwertprädiktion:
+        \begin{equation*}
+            \hat{z}(k+1|k) = H(k+1) \hat{x}(k+1|k)
+        \end{equation*}
+    \item Kovarianz-Messwertprädiktion:
+        \begin{equation*}
+            S(k+1) = H(k+1)P(k+1|k)\T{H(k+1)} + R(k+1)
+        \end{equation*}
+\end{itemize}
+
+\subsection{Innovationsschritt}
+\begin{itemize}
+    \item Filterverstärkung;
+        \begin{equation*}
+            K(k+1) = P(k+1|k) \T{H(k+1)} {S(k+1)}^{-1}
+        \end{equation*}
+    \item Zustandsupdate
+        \begin{equation*}
+            \hat{x}(k+1|k+1) = \hat{x}(k+1|k) + K(k+1) (z(k+1) - \hat{z}(k+1|k))
+        \end{equation*}
+    \item Kovarianzupdate
+        \begin{equation*}
+            P(k+1|k+1) = P(k+1|k) - K(k+1) S(k+1) \T{K(k+1)}
+        \end{equation*}
+\end{itemize}

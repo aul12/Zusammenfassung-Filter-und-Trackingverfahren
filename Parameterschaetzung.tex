@@ -1,12 +1,12 @@
 \chapter{Grundlagen der Parameterschätzung}
 \section{Definitionen}
-\begin{enumerate}
+\begin{itemize}
     \item $x$: Parameter (fester, zeitinvarianter Wert), der geschätzt werden soll (Skalar oder Vektor).
     \item $z$: Messung des Parameters $x$ mit einer einer Messfunktion $h(\cdot)$ (Skalar oder Vektor).
         Die Messungen sind in der Regel gestört, z.B. durch ein Rauschen $w$: $z = h(x, w)$.
     \item $Z^k$: $Z^k = \{z_1, \ldots, z_k\}$ ist die Gesamtheit aller $k$-Messungen.
     \item $Z$: Gesamtheit aller erfolgten Messungen (Anzahl nicht spezifiziert).
-\end{enumerate}
+\end{itemize}
 
 \paragraph{Schätzer:}
 \begin{equation*}
@@ -41,13 +41,13 @@ Dann folgt mit der Regel von Bayes:
 \end{equation*}
 
 Mit:
-\begin{enumerate}
+\begin{itemize}
     \item $p(Z|x)$: PDF der Messung, bedingt durch den wahren Parameter $x$.
     \item $p(x|Z)$: A posteriori PDF der Schätzung
     \item $p(x)$: A priori PDF der Schätzung
     \item $p(Z)$: PDF der Messungen, dient der Normierung
     \item $\frac{1}{c}$: Normierungsfaktor
-\end{enumerate}
+\end{itemize}
 
 Vorsicht: $c = p(Z)$ gilt nur für statistisch unabhängigen Messungen.
 
@@ -58,7 +58,7 @@ Ein Schätzer heißt erwartungstreu, wenn für den Schätzfehler $\tilde{x}$ gil
 \end{equation*}
 
 Dabei lässt sich unterscheiden zwischen:
-\begin{enumerate}
+\begin{itemize}
     \item (Generelle) Erwartungstreue:
         \begin{equation*}
             \E{\tilde{x}} = 0\ \forall k
@@ -67,7 +67,7 @@ Dabei lässt sich unterscheiden zwischen:
         \begin{equation*}
             \E{\tilde{x}} = 0\ \text{für } k \to \infty
         \end{equation*}
-\end{enumerate}
+\end{itemize}
 
 \section{Konsistenz}
 Wenn der Schätzer erwartungstreu ist, kann die Konsistenz als:
