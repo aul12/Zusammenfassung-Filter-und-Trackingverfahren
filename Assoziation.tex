@@ -1,1 +1,38 @@
 \chapter{Datenassoziation}
+\section{Gatting}
+Um die Assoziation zu vereinfachen werden im Vorraus unwahrscheinliche Kombinationen ausgeschlossen. 
+
+Für einen Track ist die Region in der eine Messung mit hoher Wahrscheinlichkeit liegt definiert als:
+\begin{equation*}
+    V(\alpha) = \{z | \T{\gamma}(k+1){S(k+1)}^{-1} \gamma(k+1) < \alpha\}
+\end{equation*}
+Mit $\alpha$ der Konfidenzschranke (quadratische Mahalanobis-Distanz).
+
+\section{(Local) Nearest Neighbour}
+Es wird die Mahalanobis Distanz verwendet um jeder Messung einen Track zuzuordnen, hierbei können doppelungen vorkommen.
+
+\section{Global Nearest Neighbour}
+Die Summe der Abstände soll minimiert werden, zudem wird gefordert, dass jede Zuordnung eindeutig ist.
+
+\subsection{Auction Algorithmus}
+Zuerst muss für jede Zuordung von Messung und Track die Kosten definiert werden, dies geschiet mithilfe der Mahalanobis Distanz und dem Gate $G$:
+\begin{equation*}
+    a_{ij} = G - d_{ij}
+\end{equation*}
+wobei hier $G = \alpha$ angenommen wird.
+
+Zusätzlich wird eine Schranke $\varepsilon$ definiert:
+\begin{equation*}
+    \varepsilon < \frac{1}{\dim[z]}
+\end{equation*}
+
+\subsubsection{Algorithmus}
+\begin{enumerate}
+    \item Wähle alle Trackpreise zu $P_i=0$
+    \item Wähle eine noch nicht zugeordnete Beobachtung $j$, falls keine existiert ist das Ergebnis erreicht
+    \item Suche den besten Track $i$ für die Beobachtung ($a_{ij} - P_{i_j} = \max_i \{a_{ij} - P_i\}$)
+    \item Falls eine andere Beobachtung zugeordnet war verwerfe diese Zuordnung
+    \item Preisupdate: $P_{i_j} = P_{i_j} + y_j + \varepsilon$, mit $y_j$ 
+        der Differenz zwischen der besten und der zweitbesten Lösung
+    \item Gehe zu Schritt 2
+\end{enumerate}
