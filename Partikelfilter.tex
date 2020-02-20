@@ -1,1 +1,137 @@
 \chapter{Parameterfreie Filter, Partikelfilter}
+Die PDFs werden durch ein Set von Partikeln (möglichen Zustände) angenähert:
+\begin{equation*}
+    \kappa(K) = \{x^1(k), x^2(k), x^N(k)\}
+\end{equation*}
+idealerweise gilt:
+\begin{equation*}
+    p(x(k)|z(k)) \propto \kappa(k)
+\end{equation*}
+
+\section{Monte-Carlo Integration}
+Sei $g: \mathbb{R}^n \to \mathbb{R}$ eine integrierbare Funktion, d.h.:
+\begin{equation*}
+    I = \int g(x) \text{d}x
+\end{equation*}
+existiert, und es gibt zwei Funktionen $f: \mathbb{R}^n \to \mathbb{R}$, sowie
+$\pi(x): \mathbb{R}^n \to \mathbb{R}$, wobei $\pi(x)$ eine PDF ist, also gilt:
+\begin{equation*}
+    \pi(x) \geq 0\ \forall x \land \int \pi(x) \text{d}x = 1
+\end{equation*}
+mit
+\begin{equation*}
+    g(x) = f(x) \pi(x)
+\end{equation*}
+dann kann $I$ durch Monte-Carlo Integration angenähert werden.
+Wähle hierfür $N$ mit $N \gg 1$, und ziehe $N$ Samples $\{x^1, \ldots, x^N\}$, 
+die der Verteilung $\pi(x)$ folgen.
+
+Dann gilt:
+\begin{equation*}
+    I = \int g(x) \text{d}x = \int f(x) \pi(x) \text{d}x \approx
+        I_N = \frac{1}{N} \sum_{i=1}^N f(x^i)
+\end{equation*}
+
+$I_N$ ist ein offsetfreier, erwartungswerttreuer Schätzwert für $I$.
+
+\section{Importance Sampling}
+Falls Samples nur anhand einer einfachereren Dichtefunktion $q(x)$ gezogen werden,
+dann kann die Monte-Carlo Integration durchgeführt werden, falls gilt:
+\begin{equation*}
+    \pi(x) > 0 \Rightarrow q(x) > 0\ \forall x \in \mathbb{R}^n
+\end{equation*}
+Das Integral lässt sich dann formulieren als:
+\begin{equation*}
+    I = \int f(x) \pi(x) \text{d}x = \int \left( f(x) \frac{\pi(x)}{q(x)} \right) q(x) \text{d}x
+\end{equation*}
+dafür muss gelten $\frac{\pi(x)}{q(x)}$ ist beschränkt. Dieser Faktor lässt sich jetzt als Gewicht definieren:
+\begin{equation*}
+    \tilde{w}(x^i) = \frac{\pi(x^i)}{q(x^i)}
+\end{equation*}
+Falls $\pi(x)$ nicht bekannt ist, dann lassen sich normalisierte Gewichte als
+\begin{equation*}
+    w(x^i) = \frac{\tilde{w}(x^i)}{\sum_{j=1}^N \tilde{w}(x^j)}
+\end{equation*}
+definieren. Damit erhält man weiterhin
+\begin{equation*}
+    I_N = \frac{1}{N} \sum_{i=1}^N f(x^i) w(x^i)
+\end{equation*}
+
+\section{Sequentielles Importance Sampling}
+Die \glqq{}abgetastete\grqq{} a-posteriori PDF ist dann gegeben durch:
+\begin{equation*}
+    p(x(k)|z(k)) \approx \sum_{i=1}^N w^i (k) \delta(x(k) - x^i(k))
+        \text{ mit } \sum_{i=1}^N w^i(k) = 1
+\end{equation*}
+
+Die Importance Funktion kann über mehrere Zeitschritte mit prädiziert werden:
+\begin{equation*}
+    q(x(k)|z(k)) =  q(x(k)|x(k-1),z(k)) q(x(k-1)|z(k-1))
+\end{equation*}
+Damit folgt (ohne Normierung):
+\begin{equation*}
+    w^i(k) \propto w^i(k-1) \frac{p(z(k) | x^i(k)) p(x^i(k) | x^i(k-1))}{q(x^i(k) | x^i(k-1), z(k))}
+\end{equation*}
+
+\section{Resampling}
+\subsection{Degeneration}
+In der Praxis ergibt sich das Problem der Degeneration: die Gewichte aller, bis auf ein Partikel werden verschwindend klein, die PDF kann nicht mehr ausreichend gut dargestellt werden.
+
+Die effektive Anzahl an Partikeln (ein Maß für die nicht-degeneration) berechnet sich als:
+\begin{equation*}
+    N_\text{eff} = \frac{1}{\sum_{j=1}^N {(w^j(k))}^2}
+\end{equation*}
+
+\subsection{Vorgehen}
+Beim resampling soll ein Mapping vom alten (gewichteten-) Partikelset $\left(x^i(k), w^i(k)\right)$ zu einem neuen Partikelset $\left(x^{i*}(k), \frac{1}{N}\right)$ erfolgen.
+
+Dafür werden $N$ neue Zufallszahlen $r_i$ im Interval $[0,1]$ bestimmt. Für jede Zufallszahl wird dann das neue Partikel $x^i$ gewählt durch:
+\begin{eqnarray*}
+    \tilde{i} &=& \argmin_n \left(\sum_{i=1}^n w^i \geq r_i \right) \\
+    x^{i*} &=& x^{\tilde{i}}
+\end{eqnarray*}
+
+\section{Wahl der Importance-Funktion}
+Die optimale Importance-Funktion lautet:
+\begin{equation*}
+    q(x(k)|x^i(k-1), z(k)) = p(x(k)|x^i(k-1),z(k))
+\end{equation*}
+die Bestimmung dieser Funktion ist im allgemeine aber nicht möglich.
+
+Daher wird oftmals die suboptimale Importance Funktion:
+\begin{equation*}
+    q(x(k)|x^i(k-1), z(k)) = p(x(k)|x^i(k-1))
+\end{equation*}
+
+\section{Implementation}
+Folgende, schwache, Voraussetzungen müssen erfüllt sein:
+\begin{itemize}
+    \item Systemgleichung $f(\cdot)$ und Messgleichung $h(\cdot)$ müssen analytisch
+        gegeben sein.
+    \item Es muss möglich sein Samples aus $v(k)$ zu ziehen.
+    \item Die Dichte $p(z(k)|x^i(k))$ muss Punktweise auswertbar sein.
+\end{itemize}
+
+\subsection{Prädiktion}
+\begin{equation*}
+    x^i(k|k-1) = f(x^i(k-1)) + v^i(k-1)
+\end{equation*}
+
+\subsection{Innovation}
+\begin{equation*}
+    w^i(k) = \eta p(z(k) - h(x^i(k))) w^i(k-1)
+\end{equation*}
+mit $\eta$, so dass $\sum w_i(k) = 1$.
+
+\section{Eigenschaften}
+\subsection{Schätzung der Kontinuierlichen PDF}
+In vielen Anwendungen ist eine kontinuierliche PDF gewünscht, diese muss im Nachhinein aus den Partikeln bestimmt werden, z.B. durch:
+\begin{itemize}
+    \item Gaussapproximation
+    \item GMM
+    \item Histogrammapproximation
+    \item Kernel-Dichte Approximation (Parzen)
+\end{itemize}
+
+\subsection{Varianz durch den Sampling-Prozess}
+Die Anzahl der Partikel bestimmt Maßgeblich wie gut eine PDF angenähert werden kann.
