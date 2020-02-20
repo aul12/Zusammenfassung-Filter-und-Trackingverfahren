@@ -247,6 +247,13 @@ Durch Kombination erhält man:
     \text{mit } \lambda &=& \frac{\sigma_v T^2}{\sigma_w} 
 \end{eqnarray*}
 
+für die Kovarianzmatrix gilt:
+\begin{eqnarray*}
+    p_{11} &=& \alpha \sigma_w^2 \\
+    p_{12} &=& \frac{\beta}{T} \sigma_w^2 \\
+    p_{22} &=& \frac{\beta}{T^2} \frac{\alpha-\frac{\beta}{2}}{1-\alpha} \sigma_w^2
+\end{eqnarray*}
+
 \subsection{$\alpha$-$\beta$-$\gamma$-Tracker}
 Eine ähnliche Rechung lässt sich auch für ein Modell 3. Ordnung anstellen, es resultiert (bei gleichem $\lambda$):
 \begin{equation*}
@@ -263,5 +270,15 @@ die Beziehung zwischen den Parametern lautet:
     \lambda^2 &=& \frac{\gamma^2}{4 (1-\alpha)} \\
     \alpha &=& \sqrt{2 \beta} - \frac{\beta}{2} \\
     \beta &=& 2(2-\alpha) - 4 \sqrt{1-\alpha} \\
-    \gamma = \frac{\beta^2}{\alpha}
+    \gamma &=& \frac{\beta^2}{\alpha}
+\end{eqnarray*}
+
+für die Kovarianzmatrix gilt:
+\begin{eqnarray*}
+    p_{11} &=& \alpha \sigma_w^2 \\
+    p_{12} &=& \frac{\beta}{T} \sigma_w^2 \\
+    p_{13} &=& \frac{\gamma}{2T^2} \sigma_w^2 \\
+    p_{22} &=& \frac{8 \alpha \beta + \gamma (\beta - 2 \alpha -4)}{8 T^2 (1-\alpha)} \sigma_w^2 \\
+    p_{23} &=& \frac{\beta (2\beta - \gamma)}{4 T^2 (1- \alpha)} \sigma_w^2 \\
+    p_{33} &=& \frac{\gamma (2 \beta - \gamma)}{4 T^4 (1-\alpha)} \sigma_w^2
 \end{eqnarray*}
