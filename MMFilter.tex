@@ -1,1 +1,62 @@
 \chapter{Multi-Modell-Filter}
+\section{Static Multiple Model (SMM)}
+Es werden $r$ separate Einzelfilter berechnet, zwischen den Filtern findet keine Interaktion statt.
+
+\section{Generalized Pseudo Bayesian (GPB1)}
+Es werden $r$ separate Einzelfilter berechnet die nach jedem Zeitschritt kombiniert werden, die kombinierte Schätzung ist die a-priori Information für den nächsten Zeitschritt.
+
+Die Kombination erfolgt gewichtet:
+\begin{equation*}
+    p(x(k) | Z^k) = \sum_{j=1}^r p(x(k)|M_j(k), Z^k) P\{M_j(k) | Z^k\}
+\end{equation*}
+im folgenden wird die Moduswahrscheinlichkeit abgekürzt:
+\begin{equation*}
+    \mu_j (k) = P\{M_j(k), Z^k\}
+\end{equation*}
+Die $\mu_i$ berechnen sich dann auf Basis der Likelihood-Funktion und Übergangswahrscheinlickeiten $p_{ij}$:
+\begin{equation*}
+    \mu_j(k) = \frac{1}{c} \Lambda_j(k) \sum_{i=1}^r p_{ij} \mu_i(k-1)
+\end{equation*}
+Wobei $c$ so gewählt wird, dass $\sum \mu_j(k) = 1$.
+
+Die Übergangswahrscheinlichkeiten, welche a-priori berechnet werden, modellieren das Filter als Markov-Kette. 
+
+Die finale Schätzung von Zustand und Kovarianz ist dann gegeben durch:
+\begin{eqnarray*}
+    \hat{x}(k|k) &=& \sum_{j=1}^r \hat{x}^j (k|k) \mu_j(k) \\
+    P(k|k) &=& \sum_{j=1}^r \mu_j(k) \left( P^j(k|k) + \left(\hat{x}^j(k|k) - \hat{x}(k|k)\right) \T{\left(\hat{x}^j(k|k) - \hat{x}(k|k)\right)} \right)
+\end{eqnarray*}
+
+Wobei der hintere Term die Unsicherheit durch die Modellauswahl berücksichtigt.
+
+\section{Interacting Multiple Model Filter (IMM)}
+Beim IMM werden nicht alle Filter auf Basis von einem a-priori Schätzwert berechnet, sondern jedes Filter erhält einen eigenen a-priori Schätzwert.
+
+Wie beim GPB1 wird wieder ein Gewicht für jedes Modell berechnet:
+\begin{equation*}
+    \mu_i (k|k-1) = \sum_{j=1}^r p_{ji} \mu_j(k-1|k-1)
+\end{equation*}
+sowie Übergangsgewichte:
+\begin{equation*}
+    \mu_{j|i}(k-1) = \frac{p_{ij} \mu_i(k-1|k-1)}{\mu_j(k|k-1)}
+\end{equation*}
+somit kann die a-priori Schätzung für jedes Filter berechnet werden:
+\begin{equation*}
+    \hat{x}^{0i} (k-1|k-1) = \sum_{j=1}^r \hat{x}^j (k-1|k-1) \mu_{j|i}(k-1)
+\end{equation*}
+sowie die zugehörige Kovarianz:
+\begin{eqnarray*}
+    P^{0i}&&(k-1|k-1) = \\
+    &&\sum_{j=1}^r \left(P^j(k-1|k-1) + 
+    \left(\hat{x}^{0i}(k-1|k-1) x^j(k-1|k-1)\right)
+    \T{\left(\hat{x}^{0i}(k-1|k-1) x^j(k-1|k-1)\right)} \right) \\
+    &&\mu_{j|i}(k)
+\end{eqnarray*}
+
+Die Kombination für die Ausgangsschätzung erfolgt dann gemäß:
+\begin{eqnarray*}
+    \hat{x}(k+1|k+1) &=& \sum_{i=1}^r \hat{x}^i(k+1|k+1)\mu_i(k+1) \\
+    P(k+1|k+1) &=& \sum_{i=1}^r \mu_i(k+1) \\
+        && (P^i(k+1|k+1) + \left(\hat{x}^i(k+1|k+1) - \hat{x}(k+1|k+1)\right) \\
+        && \T{\left(\hat{x}^i(k+1|k+1) - \hat{x}(k+1|k+1)\right)} )
+\end{eqnarray*}
