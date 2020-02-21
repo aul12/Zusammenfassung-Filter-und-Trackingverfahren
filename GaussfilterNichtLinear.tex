@@ -19,7 +19,7 @@ Beim EKF wird additives Rauschen angenommen (und hier auch keine Steuergröße):
 
 Durch Linearisierung (Taylor) erhält man daraus ein linearisiertes Modell:
 \begin{equation*}
-    x(k+1) = f(k, \hat{x}(k|k)) + f_x(k) (x(k) - \hat{x}(k|k))
+    x(k+1) = f(k, \hat{x}(k|k)) + f_x(k) \left(x(k) - \hat{x}(k|k)\right)
 \end{equation*}
 wobei $f_x$ die Ableitung von $f$ nach $x$ ist:
 \begin{equation*}
@@ -52,7 +52,7 @@ Die Güte es EKF hängt von zwei Faktoren ab:
 \end{itemize}
 
 \section{Unscented Kalmanfilter (UKF)}
-Statt einer Taylorreihenentwicklung wird eine \glqq stochastische\grqq Linearisierung durchgeführt, d.h. anstatt das System
+Statt einer Taylorreihenentwicklung wird eine \glqq{}stochastische\grqq{} Linearisierung durchgeführt, d.h. anstatt das System
 zu linearisieren werden mehrere Punkte (auf der $\sigma$-Ellipse), transformiert und danach daraus eine 
 Normalverteilung rekonstruiert.
 
