@@ -2,7 +2,7 @@
 Das allgemeine Bayes Filter lässt sich für allgemeine PDFs nur schwer auswerten. 
 Daher werden die PDFs als Normalverteilungen angenommen:
 \begin{equation*}
-    p(x) = \abs{2 \pi P}^{-\frac{1}{2}} \exp \left(-\frac{1}{2} \T{(x - \bar{x})} P^{-1} (x-\bar{x}) \right)
+    p(x) = \abs{{(2 \pi)}^p P}^{-\frac{1}{2}} \exp \left(-\frac{1}{2} \T{(x - \bar{x})} P^{-1} (x-\bar{x}) \right)
 \end{equation*}
 Mit $\bar{x}$: Erwartungswert, $P$: Kovarianzmatrix.
 
@@ -15,7 +15,7 @@ mit:
 \begin{itemize}
     \item $x(k) \in \mathbb{R}^{n \times 1}$: Zustandsvektor
     \item $u(k) \in \mathbb{R}^{j \times 1}$: Steuervektor
-    \item $u(k) \in \mathbb{R}^{j \times 1}$: Sequenz von gaußverteiltem, mittelwertfreien weißem Rauschen
+    \item $v(k) \in \mathbb{R}^{n \times 1}$: Sequenz von gaußverteiltem, mittelwertfreien weißem Rauschen
     \item $F(k) \in \mathbb{R}^{n \times n}$: Systemmatrix
     \item $G(k) \in \mathbb{R}^{n \times j}$: Steuermatrix
     \item $k \in \mathbb{N}$ Zeitindex der diskreten Zeit
