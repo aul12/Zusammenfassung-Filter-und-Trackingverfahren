@@ -1,9 +1,9 @@
 \chapter{Gaußfilter für nichtlineare Systeme}
-Bei vielen realen Systemen sind System und/oder Messgleichung nichtlinear, so bleiben die PDFs keine Normalverteilung. Oftmals lässt sich aber die PDF trotzdem durch eine Gaußverteilung
-approximieren.
+Bei vielen realen Systemen sind System und/oder Messgleichung nichtlinear, so bleiben die PDFs keine Normalverteilung. 
+Oftmals lässt sich aber die PDF trotzdem durch eine Gaußverteilung approximieren.
 
 \section{Extended Kalman Filter (EKF)}
-Das EKF löst das Problem der Nichtlinearitäten durch linearisierung.
+Das EKF löst das Problem der Nichtlinearitäten durch Linearisierung.
 
 Allgemein lautet das Zustandsraummodell:
 \begin{eqnarray*}
@@ -17,7 +17,7 @@ Beim EKF wird additives Rauschen angenommen (und hier auch keine Steuergröße):
     z(k) &=& h(k, x(k)) + w(k)
 \end{eqnarray*}
 
-Durch linearisierung (Taylor) erhält man daraus ein linearisiertes Modell:
+Durch Linearisierung (Taylor) erhält man daraus ein linearisiertes Modell:
 \begin{equation*}
     x(k+1) = f(k, \hat{x}(k|k)) + f_x(k) (x(k) - \hat{x}(k|k))
 \end{equation*}
@@ -52,7 +52,7 @@ Die Güte es EKF hängt von zwei Faktoren ab:
 \end{itemize}
 
 \section{Unscented Kalmanfilter (UKF)}
-Statt einer Taylorreihenentwicklung wird eine \glqq stochastische\grqq linearisierung durchgeführt, d.h. anstatt das System
+Statt einer Taylorreihenentwicklung wird eine \glqq stochastische\grqq Linearisierung durchgeführt, d.h. anstatt das System
 zu linearisieren werden mehrere Punkte (auf der $\sigma$-Ellipse), transformiert und danach daraus eine 
 Normalverteilung rekonstruiert.
 
