@@ -32,6 +32,14 @@ Die Likelihood Funktion gibt die Likelihood an mit der eine Messung $Z$ zu einem
     \Lambda_Z(x) = p(Z|x)
 \end{equation*}
 
+\subsubsection{ML-Schätzer}
+Das Schätzergebnis ergibt sich als das $x$, mit höchstem Likelihood:
+\begin{equation*}
+    \hat{x}^\text{ML} (Z) = \argmax_x (\Lambda_Z(x))
+\end{equation*}
+
+Für gaussverteilte Messgrößen mit gleicher Varianz bildet der ML-Schätzer den Durchschnitt.
+
 \subsection{Regel von Bayes}
 Der zu schätzende Parameter wird als stochastisch mit a priori PDF $p(x)$ angenommen.
 
@@ -50,6 +58,30 @@ Mit:
 \end{itemize}
 
 Vorsicht: $c = p(Z)$ gilt nur für statistisch unabhängigen Messungen.
+
+\subsubsection{MAP-Schätzer}
+Für den Maximum-A-Posteriori PDF wird das wahrscheinlichste $x$ zu den Messungen genommen:
+\begin{equation*}
+    \hat{x}^\text{MAP}(Z) = \argmax_x p(x|Z) = \argmax_x \left(p(Z|x) p(x)\right)
+\end{equation*}
+
+Für gaussverteilte Messgrößen bildet der MAP-Schätzer das gewichtete Mittel aus Prior und Messung, die Wichtung ist hierbei durch die Varianz der jeweils anderen Größe normiert durch die Gesamtvarianz gegeben.
+
+\subsection{Least-Squares Schätzer}
+Es wird der Zustand $x$, der den kleinsten Quadratischen Messfehler erzeugt gesucht ($z(j) = h(j, x) + w(j)$):
+\begin{equation*}
+    \hat{x}^\text{LS} = \argmin_x \left( \sum_{j=1}^k {\left(z(j) - h(j,x)\right)}^2 \right)
+\end{equation*}
+
+Für normalverteilte, mittelwertfreie Messfehler sind LS und ML identisch.
+
+\subsection{Minimum Mean Square Error}
+Der MMSE Schätzer versucht den quadratischen Fehler von $\hat{x}$ zu $x$ zu minimieren, nimmt hierbei allerdings $x$ als stochastisch an:
+\begin{equation*}
+    \hat{x}^\text{MMSE}(Z) = \argmin_{\hat{x}} \E{{(\hat{x} - x)}^2 | Z}
+\end{equation*}
+
+Für normalverteilte größen stimmen MMSE und MAP überein.
 
 \section{Erwartungstreue von Schätzern}
 Ein Schätzer heißt erwartungstreu, wenn für den Schätzfehler $\tilde{x}$ gilt:
@@ -84,7 +116,7 @@ mit der Fisher-Informationsmatrix $J$ als:
     J = -\left. \E{\nabla_x \T{\nabla}_x \ln(\Lambda(x))} \right|_{x=x_0} 
         = \left. \E{\left(\nabla_x \ln(\Lambda(x))\right) \T{(\nabla_x \ln(\Lambda(x)))}} \right|_{x=x_0}
 \end{equation*}
-Wobei die Größenrelation über die positive semidefinitheit der beiden Matrizen definiert ist:
+Wobei die Größenrelation über die positive semidefinitheit der differenz der beiden Matrizen definiert ist:
 \begin{equation*}
     A \geq B \Leftrightarrow A - B \geq 0
 \end{equation*}
