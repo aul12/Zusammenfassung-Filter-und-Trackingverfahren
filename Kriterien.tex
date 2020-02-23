@@ -1,0 +1,34 @@
+\chapter{Kriterien}
+\section{Optimal}
+Ein Schätzer, der ein bestimmtes Kriterium bewertet (Optimalitätkriterium).
+
+\section{Effizienz}
+Ein Parameterschätzer ist effizient wenn $\E{\tilde{x}^2} = J^{-1}$ (Cramer-Rao Grenze).
+
+\section{Erwartungswerttreue}
+\subsection{Generelle Erwartungswerttreue}
+\begin{equation*}
+    \E{\tilde{x}} = 0\ \forall k
+\end{equation*}
+
+\subsection{Asymptotische Erwartungswerttreue}
+\begin{equation*}
+    \E{\tilde{x}} = 0\ \text{für } k \to \infty
+\end{equation*}
+
+\section{Konsistenz}
+\subsection{Parameterschätzung}
+Es gilt:
+\begin{equation*}
+    \lim_{k \to \infty} \E{\tilde{x}^2} = 0
+\end{equation*}
+
+\subsection{Zustandsschätzung}
+Es gilt:
+\begin{eqnarray*}
+    \E{\tilde{x}(k|k)} &=& 0 \\
+    \E{\tilde{x}(k|k) \T{\tilde{x}(k|k)}} &=& P(k|k)
+\end{eqnarray*}
+wequationobei das zweite Kriterium (Korrekt geschätzte Schätzfehlerkovarianzmatrix) bereits, das erste impliziert (Offsetfreiheit).
+
+Zum Überprüfen: NEES.
